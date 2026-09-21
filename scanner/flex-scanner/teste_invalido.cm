@@ -1,0 +1,9 @@
+/* teste_invalido.cminus
+   Codigo C- com erros lexicos propositais */
+
+int x;
+int y$;
+x = 5 % 2;
+vetor[3] !
+x == 4;
+/* este comentario nunca e fechado
