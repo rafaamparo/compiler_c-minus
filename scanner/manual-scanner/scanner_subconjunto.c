@@ -1,11 +1,6 @@
 /* ============================================================================
    TRABALHO - PARTE 1: SCANNER (ANALISADOR LEXICO) DO SUBCONJUNTO DO C-
    ============================================================================
-   Arquivo.....: scanner_subconjunto.c
-   Linguagem...: C padrao (C89/C99) - sem nenhuma biblioteca de geracao de
-                 scanners; o DFA foi implementado A MAO, como pede o
-                 enunciado ("sem usar ferramenta que automatize tudo").
-
    ---------------------------------------------------------------------------
    1. REGRAS DO SUBCONJUNTO ESCOLHIDO (BNF)
    ---------------------------------------------------------------------------
@@ -159,9 +154,9 @@ Token proximo_token(FILE *f, int *linha)
     Token t = { T_EOF, "", *linha };   /* comeca assumindo fim de arquivo;  */
                                        /* se sair do loop abaixo, completa  */
     Estado e = S0;                     /* o DFA SEMPRE comeca no estado S0  */
-    int c;                              /* caractere corrente lido           */
-    int i = 0;                          /* indice no buffer do lexema        */
-    int k;                              /* indice da tabela de keywords     */
+    int c;                             /* caractere corrente lido           */
+    int i = 0;                         /* indice no buffer do lexema         */
+    int k;                             /* indice da tabela de keywords       */
 
     /* ------------------------------------------------------------
        PASSO 1 - ESTADO S0: pular espacos em branco e contar linhas
@@ -173,9 +168,9 @@ Token proximo_token(FILE *f, int *linha)
        um caractere que PODE iniciar um token - ou o fim do arquivo. */
     for (;;) {
         c = fgetc(f);
-        if (c == EOF) return t;                
-        if (c == '\n') { (*linha)++; continue; } /* conta a linha e continua    */
-        if (c == ' ' || c == '\t' || c == '\r') continue; /* branco: ignora    */
+        if (c == EOF) return t;
+        if (c == '\n') { (*linha)++; continue; } /* conta a linha e continua */
+        if (c == ' ' || c == '\t' || c == '\r') continue; /* branco: ignora */
         break;                                   /* caractere util: inicia token */
     }
 
@@ -188,7 +183,7 @@ Token proximo_token(FILE *f, int *linha)
        completo: nao ha estado intermediario. Aceita e retorna direto. */
     if (eh_simbolo(c)) {
         t.tipo      = T_SYMBOL;            /* classificacao do token        */
-        t.lexema[0] = (char)c;            /* o lexema e' o proprio caractere */
+        t.lexema[0] = (char)c;             /* o lexema e' o proprio caractere */
         t.lexema[1] = '\0';                /* fecha a string do lexema      */
         return t;                          /* aceitacao imediata            */
     }
@@ -201,7 +196,7 @@ Token proximo_token(FILE *f, int *linha)
        enquanto houver letras. No primeiro caractere que NAO for letra,
        o loop termina: o token acabou.                                        */
     if (isalpha(c)) {                      /* isalpha == ER [a-zA-Z]        */
-        e = S1;                             /* transicao S0 -> S1             */
+        e = S1;                            /* transicao S0 -> S1             */
         t.lexema[i++] = (char)c;           /* guarda a 1a letra do lexema   */
 
         /* AUTO-LACO do S1: enquanto vier letra, acumula no lexema.
@@ -241,7 +236,7 @@ Token proximo_token(FILE *f, int *linha)
        "digit digit*": primeiro caractere digito leva ao estado S2,
        e o auto-laco S2 --digit--> S2 acumula os demais digitos.               */
     if (isdigit(c)) {                      /* isdigit == ER [0-9]            */
-        e = S2;                             /* transicao S0 -> S2             */
+        e = S2;                            /* transicao S0 -> S2             */
         t.lexema[i++] = (char)c;           /* guarda o 1o digito             */
 
         /* AUTO-LACO do S2: enquanto vier digito, acumula no lexema. */
@@ -298,14 +293,14 @@ int main(int argc, char *argv[])
     }
     arq = fopen(argv[1], "r");
     if (arq == NULL) {
-        perror(argv[1]);                
+        perror(argv[1]);
         return 1;
     }
     snprintf(nome_saida, sizeof(nome_saida), "saida_%s.txt", argv[1]);
     saida = fopen(nome_saida, "w");
     if (saida == NULL) {
         perror(nome_saida);
-        fclose(arq);                    
+        fclose(arq);
         return 1;
     }
 
@@ -317,7 +312,13 @@ int main(int argc, char *argv[])
        ate a sua aceitacao (ou ate achar um caractere invalido).       */
     for (;;) {
         t = proximo_token(arq, &linha);
-        if (t.tipo == T_EOF) break;   
+        if (t.tipo == T_EOF) {
+            printf("Linha %3d | %-7s | %s\n",
+                   t.linha, nome_tipo[T_EOF], "fim do arquivo");
+            fprintf(saida, "Linha %3d | %-7s | %s\n",
+                    t.linha, nome_tipo[T_EOF], "fim do arquivo");
+            break;
+        }
 
         if (t.tipo == T_ERRO) {
             /* ---- Token de ERRO: reporta e conta ---- */
@@ -342,7 +343,7 @@ int main(int argc, char *argv[])
 
     fprintf(saida, "\n=== Resumo ===\n");
     fprintf(saida, "Tokens validos reconhecidos : %d\n", n_tokens);
-    fprintf(saida, "Erros lexicos encontrados  : %d\n", n_erros);                  */
+    fprintf(saida, "Erros lexicos encontrados  : %d\n", n_erros);
     fclose(arq);
     fclose(saida);
     return (n_erros > 0) ? 1 : 0;
