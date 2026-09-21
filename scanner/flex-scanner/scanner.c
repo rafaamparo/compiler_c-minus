@@ -1,14 +1,10 @@
 %{
 /* ============================================================
-   scanner.l - Analisador lexico para a linguagem C-.
-   Baseado em: Louden, "Compiler Construction: Principles and
-   Practice" - Linguagem C- (C-minus)
-
-   A versao salva o log completo de cada analise em um arquivo
-   chamado saida_<arquivo>.txt, alem de imprimir no terminal.
+   Salva o log completo de cada analise em um arquivo
+   chamado saida_<arquivo>.txt.
 
    Como compilar e executar (Linux/WSL):
-     flex scanner.l
+     flex scanner.c
      gcc lex.yy.c -o scanner
      ./scanner teste_valido.cm
      ./scanner teste_invalido.cm
@@ -61,12 +57,6 @@ NUM    {DIGIT}+
     \n       { linha++; }
     [ \t\r]+ { /* ignora espacos em branco */ }
 
-    . { registrar_erro("caractere invalido:", yytext); }
-}
-
-/* ================== COMENTARIO ================== */
-<COMENTARIO>{
-    <<EOF>> {
         registrar_erro("comentario '/*' nao foi fechado", "");
         yyterminate();
     }
@@ -74,7 +64,6 @@ NUM    {DIGIT}+
     "*/" { BEGIN(INITIAL); }
     \n    { linha++; }
     . { /* ignora o conteudo do comentario */ }
-}
 
 %%
 

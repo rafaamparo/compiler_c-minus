@@ -17,7 +17,7 @@
      5) type-specifier    := int | void
 
    ---------------------------------------------------------------------------
-   2. EXPRESSOES REGULARES DOS TOKENS (definidas no trabalho)
+   2. EXPRESSOES REGULARES DOS TOKENS
    ---------------------------------------------------------------------------
      letter   = [a-zA-Z]
      digit    = [0-9]
@@ -54,7 +54,7 @@
      logo apos o token ser aceito (tecnica classica de scanners).
 
    ---------------------------------------------------------------------------
-   4. COMO COMPILAR E EXECUTAR (Linux/WSL ou Windows/MinGW)
+   4. COMO COMPILAR E EXECUTAR (Linux/WSL)
    ---------------------------------------------------------------------------
      gcc scanner_subconjunto.c -o scanner_sub
      ./scanner_sub sub_valido.cm       (cria saida_sub_valido.cm.txt)
@@ -66,7 +66,7 @@
      A analise e impressa NA TELA (printf) e SALVA EM ARQUIVO (fprintf)
      no arquivo "saida_<nome-da-entrada>.txt", com um resumo final:
      total de tokens validos e total de erros lexicos.
-     O programa devolve exit code 1 se houve erro lexico (util p/ testes).
+     O programa devolve exit code 1 se houve erro lexico.
    ============================================================================ */
 
 #include <stdio.h>
@@ -74,12 +74,6 @@
 #include <string.h>
 #include <ctype.h>
 
-/* ----------------------------------------------------------------------------
-   DEFINICAO DOS ESTADOS DO DFA MINIMO
-   ----------------------------------------------------------------------------
-   Cada estado do automato vira uma constante aqui. O enum deixa o codigo
-   legivel: em vez de falar "estado 0", falamos S0, S1, S2.
-   OBS: e' o mesmo automato desenhado no papel na parte manual do trabalho. */
 typedef enum {
     S0,   /* estado INICIAL: ainda nao comecou nenhum token            */
     S1,   /* estado de leitura de ID: ja leu 1+ letras (loop letter*)  */
@@ -99,9 +93,6 @@ typedef enum {
 typedef enum {
     T_ID, T_NUM, T_KEYWORD, T_SYMBOL, T_ERRO, T_EOF
 } TipoToken;
-
-/* Vetor paralelo apenas para imprimir o NOME bonito de cada tipo,
-   no formato usado no relatorio (ID, NUM, KEYWORD, ...). */
 const char *nome_tipo[] = { "ID", "NUM", "KEYWORD", "SYMBOL", "ERRO", "EOF" };
 
 /* ----------------------------------------------------------------------------
@@ -110,24 +101,24 @@ const char *nome_tipo[] = { "ID", "NUM", "KEYWORD", "SYMBOL", "ERRO", "EOF" };
    Cada token carrega:
      - tipo   : a classificacao (acima)
      - lexema : a string que foi reconhecida no fonte (ex.: "vetor", "10", ";")
-     - linha  : numero da linha onde o token comecou (para mensagens de erro) */
+     - linha  : numero da linha onde o token comecou (p mensagens de erro) */
 typedef struct {
     TipoToken tipo;
-    char      lexema[256];   /* tamanho maximo seguro p um lexema        */
+    char      lexema[256];
     int       linha;
 } Token;
 
 /* ----------------------------------------------------------------------------
    TABELA DE PALAVRAS RESERVADAS DO SUBCONJUNTO
    ----------------------------------------------------------------------------
-   "int" e "void" casam com a ER de ID (so' letras). A diferenca entre KEYWORD
-   e identificador comum so' existe no FINAL do token: quando o DFA aceita em
+   "int" e "void" casam com a ER de ID (só letras). A diferenca entre KEYWORD
+   e identificador comum só existe no FINAL do token: quando o DFA aceita em
    S1, comparamos o lexema com esta tabela com strcmp. O NULL final marca o
    fim da tabela.                                                               */
 static const char *keywords[] = { "int", "void", NULL };
 
 /* ----------------------------------------------------------------------------
-   eh_simbolo(): verifica se o caractere e' um dos SIMBOLOS do subconjunto
+   eh_simbolo(): verifica se o caractere eh um dos SIMBOLOS do subconjunto
    ----------------------------------------------------------------------------
    Os simbolos sao tokens de 1 unico caractere: ; [ e ].
    Como sao formados por apenas um caractere, o DFA vai de S0 direto para um
@@ -182,13 +173,12 @@ Token proximo_token(FILE *f, int *linha)
        um caractere que PODE iniciar um token - ou o fim do arquivo. */
     for (;;) {
         c = fgetc(f);
-        if (c == EOF) return t;                  /* acabou o arquivo: devolve T_EOF */
+        if (c == EOF) return t;                
         if (c == '\n') { (*linha)++; continue; } /* conta a linha e continua    */
         if (c == ' ' || c == '\t' || c == '\r') continue; /* branco: ignora    */
         break;                                   /* caractere util: inicia token */
     }
 
-    /* Guarda em que linha este token COMECOU (valor usado no relatorio). */
     t.linha = *linha;
 
     /* ------------------------------------------------------------
@@ -302,42 +292,32 @@ int main(int argc, char *argv[])
     int   n_tokens = 0;                   /* total de tokens validos          */
     int   n_erros = 0;                    /* total de erros lexicos          */
 
-    /* ---- 0. Validacao dos argumentos da linha de comando ---- */
     if (argc < 2) {
-        /* Mensagens de uso do proprio programa vao para stderr (erro padrao),
-           para nao se misturarem com a saida da analise (stdout).           */
         fprintf(stderr, "Uso: %s <arquivo-fonte.cm>\n", argv[0]);
         return 1;
     }
-
-    /* ---- 1. Abre o arquivo de ENTRADA (fonte em C-) ---- */
     arq = fopen(argv[1], "r");
     if (arq == NULL) {
-        perror(argv[1]);                  /* imprime o motivo da falha       */
+        perror(argv[1]);                
         return 1;
     }
-
-    /* ---- 2. Monta e abre o arquivo de SAIDA (log da analise) ----
-       Ex.: entrada "sub_valido.cm" gera "saida_sub_valido.cm.txt".
-       Modo "w": a cada execucao o log anterior e' sobrescrito.       */
     snprintf(nome_saida, sizeof(nome_saida), "saida_%s.txt", argv[1]);
     saida = fopen(nome_saida, "w");
     if (saida == NULL) {
         perror(nome_saida);
-        fclose(arq);                      /* nao deixa a entrada aberta      */
+        fclose(arq);                    
         return 1;
     }
 
-    /* ---- 3. Cabecalho do relatorio (tela + arquivo) ---- */
     printf("=== Scanner do subconjunto C- : %s ===\n\n", argv[1]);
     fprintf(saida, "=== Scanner do subconjunto C- : %s ===\n\n", argv[1]);
 
-    /* ---- 4. LACO PRINCIPAL: pede tokens ate o fim do arquivo ----
+    /* ---- LOOP PRINCIPAL: pede tokens ate o fim do arquivo ----
        Cada chamada a proximo_token() roda o DFA do inicio de um token
        ate a sua aceitacao (ou ate achar um caractere invalido).       */
     for (;;) {
         t = proximo_token(arq, &linha);
-        if (t.tipo == T_EOF) break;        /* acabou o fonte: sai do laco     */
+        if (t.tipo == T_EOF) break;   
 
         if (t.tipo == T_ERRO) {
             /* ---- Token de ERRO: reporta e conta ---- */
@@ -355,8 +335,6 @@ int main(int argc, char *argv[])
                     t.linha, nome_tipo[t.tipo], t.lexema);
         }
     }
-
-    /* ---- 5. Resumo final (tela + arquivo) ---- */
     printf("\n=== Resumo ===\n");
     printf("Tokens validos reconhecidos : %d\n", n_tokens);
     printf("Erros lexicos encontrados  : %d\n", n_erros);
@@ -364,12 +342,7 @@ int main(int argc, char *argv[])
 
     fprintf(saida, "\n=== Resumo ===\n");
     fprintf(saida, "Tokens validos reconhecidos : %d\n", n_tokens);
-    fprintf(saida, "Erros lexicos encontrados  : %d\n", n_erros);
-
-    /* ---- 6. Encerramento: fecha os arquivos e devolve o status ----
-       Exit code 0 = nenhum erro lexico; 1 = houve erro.
-       Isso permite usar o scanner dentro de scripts de teste
-       (ex.: testar varios arquivos em lote).                          */
+    fprintf(saida, "Erros lexicos encontrados  : %d\n", n_erros);                  */
     fclose(arq);
     fclose(saida);
     return (n_erros > 0) ? 1 : 0;
