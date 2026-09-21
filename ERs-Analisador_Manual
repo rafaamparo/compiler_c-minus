@@ -1,0 +1,13 @@
+- As regras escolhidas foram as seguintes:
+
+1- program := declaration-list
+2- declaration-list := declaration-list declaration | declaration
+3- declaration := var-declaration
+4- var-declaration := type-specifier ID ; | type-specifier ID [ NUM ] ;
+5- type-specifier := int | void
+6- ID := letter letter*
+7- NUM := digit digit
+8- letter := a | .. | z | A | .. | Z
+9- digit := 0 | .. | 9
+
+- As ERs extraídas são:
