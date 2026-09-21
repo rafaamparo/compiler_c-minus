@@ -1,0 +1,4 @@
+int x;
+void y;
+int vetor[10];
+int resultado;
