@@ -19,7 +19,7 @@
                            simples: o longest match do Flex escolhe
                            o maior;
      4. estado COMENTARIO: ignora conteudo, conta \n, volta ao
-                           INITIAL no '*/'; se chegar ao <<EOF>>
+                           INITIAL no final do comentário; se chegar ao <<EOF>>
                            dentro dele, reporta erro apontando a
                            linha de abertura e termina a analise;
      5. caractere invalido -> regra "." chama registrar_erro()
