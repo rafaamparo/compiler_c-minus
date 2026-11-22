@@ -22,21 +22,52 @@ A gramática de referência está em [`cminus-bnf.pdf`](cminus-bnf.pdf).
 ```text
 compiler/
 ├── manual-scanner/
-│   ├── scanner_subconjunto.c  # Scanner manual do subconjunto
-│   └── sub_*.cm               # Entradas de teste
+│   ├── scanner.c                # Implementação reutilizável do léxico manual
+│   ├── scanner.h                # Interface compartilhada com o parser
+│   ├── scanner_subconjunto.c    # Scanner manual do subconjunto
+│   └── sub_*.cm                 # Entradas de teste
 ├── manual-parser/
-│   ├── parser_subconjunto.c   # Parser LL(1) manual
+│   ├── parser_subconjunto.c     # Parser LL(1) manual adicional
 │   └── sub_*.cm               # Entradas de teste
 ├── flex-scanner/
-│   ├── scanner.l              # Especificação Flex do scanner completo
+│   ├── scanner.l                # Lexer da primeira entrega e fonte usada pelo Yacc
 │   └── teste_*.cm             # Entradas de teste
 └── yacc-parser/
-    ├── cminus.l               # Especificação léxica
-    ├── cminus.y               # Gramática Yacc/Bison e construção da AST
+    ├── cminus.y                 # Gramática Yacc/Bison e construção da AST
     └── sub_*.cm               # Entradas de teste
 mathematical-expressions-synthatic-analyzer/
 └── analyzer.c                 # Parser LL(1) interativo de expressões
 ```
+
+## Fluxo principal de leitura
+
+O lexer implementado com Flex na primeira entrega é a única fonte léxica
+integrada ao parser Yacc/Bison:
+
+```text
+arquivo-fonte .cm
+       |
+       v
+flex-scanner/scanner.l
+       |
+       v
+yylex() retorna um token por chamada
+       |
+       v
+    cminus.y
+       |
+       v
+parser Yacc/Bison
+       |
+       +--> código válido --> análise sintática concluída + AST
+       |
+       +--> código inválido -> erro léxico e/ou erro sintático
+```
+
+O arquivo [scanner.l](compiler/flex-scanner/scanner.l) pode ser executado como
+scanner independente ou integrado ao Yacc. Sem `YACC_PARSER`, ele imprime os
+tokens reconhecidos. Com `-DYACC_PARSER`, ele inclui `y.tab.h` e devolve os
+tokens ao `cminus.y` por meio de `yylex()`.
 
 Os executáveis e arquivos gerados (`scanner`, `cminus_parser`, `lex.yy.c`,
 `y.tab.c` e `y.tab.h`) também podem estar presentes no repositório para
@@ -59,7 +90,7 @@ forma de invocar os executáveis.
 
 ```bash
 cd compiler/manual-scanner
-gcc scanner_subconjunto.c -o scanner
+gcc scanner.c scanner_subconjunto.c -o scanner
 ./scanner sub_valido.cm
 ./scanner sub_invalido.cm
 ```
@@ -71,10 +102,13 @@ O programa imprime os tokens e erros léxicos no terminal e salva um relatório
 
 ```bash
 cd compiler/manual-parser
-gcc parser_subconjunto.c -o parser_subconjunto
+gcc ../manual-scanner/scanner.c parser_subconjunto.c -o parser_subconjunto
 ./parser_subconjunto sub_valido.cm
 ./parser_subconjunto sub_invalido.cm
 ```
+
+O parser manual reutiliza `proximo_token` do scanner em
+`manual-scanner/scanner.c`; a implementação léxica não é duplicada no parser.
 
 Durante o reconhecimento, o parser exibe a pilha, as regras aplicadas e a
 árvore sintática resultante.
@@ -99,8 +133,8 @@ Para regenerar os arquivos do parser:
 ```bash
 cd compiler/yacc-parser
 bison -y -d cminus.y
-flex cminus.l
-gcc y.tab.c lex.yy.c -o cminus_parser
+flex ../flex-scanner/scanner.l
+gcc -DYACC_PARSER y.tab.c lex.yy.c -o cminus_parser
 ./cminus_parser sub_valido.cm
 ./cminus_parser sub_invalido.cm
 ```

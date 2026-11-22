@@ -123,7 +123,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 59 "cminus.y"
+#line 60 "cminus.y"
 
     char *str;
     struct ASTNode *node;

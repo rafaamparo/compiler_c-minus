@@ -1,103 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+
+#include "../manual-scanner/scanner.h"
 
 /* =========================================================================
-   PARTE 1: ANALISADOR LÉXICO
-   ========================================================================= */
-
-typedef enum {
-    S0, S1, S2
-} Estado;
-
-typedef enum {
-    LEX_ID, LEX_NUM, LEX_KEYWORD, LEX_SYMBOL, LEX_ERRO, LEX_EOF
-} TipoToken;
-
-typedef struct {
-    TipoToken tipo;
-    char      lexema[256];
-    int       linha;
-} Token;
-
-static const char *keywords[] = { "int", "void", NULL };
-
-static int eh_simbolo(int c) {
-    return c == ';' || c == '[' || c == ']';
-}
-
-Token proximo_token(FILE *f, int *linha) {
-    Token t = { LEX_EOF, "", *linha };
-    Estado e = S0;
-    int c;
-    int i = 0;
-    int k;
-
-    for (;;) {
-        c = fgetc(f);
-        if (c == EOF) return t;
-        if (c == '\n') { (*linha)++; continue; }
-        if (c == ' ' || c == '\t' || c == '\r') continue;
-        break;
-    }
-
-    t.linha = *linha;
-
-    if (eh_simbolo(c)) {
-        t.tipo      = LEX_SYMBOL;
-        t.lexema[0] = (char)c;
-        t.lexema[1] = '\0';
-        return t;
-    }
-
-    /* S0 --> S1 */
-    if (isalpha(c)) {
-        e = S1;
-        t.lexema[i++] = (char)c;
-
-        while ((c = fgetc(f)) != EOF && isalpha(c)) {
-            if (i < 255) t.lexema[i++] = (char)c;
-        }
-        t.lexema[i] = '\0';
-
-        if (c != EOF) ungetc(c, f);
-
-        t.tipo = LEX_ID;
-        for (k = 0; keywords[k] != NULL; k++) {
-            if (strcmp(t.lexema, keywords[k]) == 0) {
-                t.tipo = LEX_KEYWORD;
-                break;
-            }
-        }
-        return t;
-    }
-
-    /* S0 --> S2 */
-    if (isdigit(c)) {
-        e = S2;
-        t.lexema[i++] = (char)c;
-
-        while ((c = fgetc(f)) != EOF && isdigit(c)) {
-            if (i < 255) t.lexema[i++] = (char)c;
-        }
-        t.lexema[i] = '\0';
-
-        if (c != EOF) ungetc(c, f);
-
-        t.tipo = LEX_NUM;
-        return t;
-    }
-
-    /* Erro */
-    t.tipo      = LEX_ERRO;
-    t.lexema[0] = (char)c;
-    t.lexema[1] = '\0';
-    return t;
-}
-
-/* =========================================================================
-   PARTE 2: DEFINIÇÕES DO ANALISADOR SINTÁTICO LL(1) (100% EQUIVALENTE)
+   DEFINIÇÕES DO ANALISADOR SINTÁTICO LL(1)
    ========================================================================= */
 
 typedef enum {

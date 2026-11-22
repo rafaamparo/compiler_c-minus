@@ -8,6 +8,7 @@ extern int yylex();
 extern int yylineno;
 extern char *yytext;
 extern FILE *yyin;
+extern int lexical_error;
 
 void yyerror(const char *s);
 
@@ -261,17 +262,24 @@ void yyerror(const char *s) {
 }
 
 int main(int argc, char **argv) {
+    int opened_file = 0;
     if (argc > 1) {
         yyin = fopen(argv[1], "r");
         if (!yyin) {
             perror("Erro ao abrir arquivo");
             return 1;
         }
+        opened_file = 1;
     }
 
-    if (yyparse() == 0) {
+    int parse_result = yyparse();
+
+    if (parse_result == 0 && lexical_error == 0) {
         printf("Análise sintática concluída com sucesso!\n\n--- AST ---\n");
         printAST(root, 0);
+        if (opened_file) fclose(yyin);
+        return 0;
     }
-    return 0;
+    if (opened_file) fclose(yyin);
+    return 1;
 }

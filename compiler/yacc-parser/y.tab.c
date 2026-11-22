@@ -78,6 +78,7 @@ extern int yylex();
 extern int yylineno;
 extern char *yytext;
 extern FILE *yyin;
+extern int lexical_error;
 
 void yyerror(const char *s);
 
@@ -124,7 +125,7 @@ void printAST(ASTNode *node, int indent) {
     printAST(node->sibling, indent);
 }
 
-#line 128 "y.tab.c"
+#line 129 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -237,12 +238,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 59 "cminus.y"
+#line 60 "cminus.y"
 
     char *str;
     struct ASTNode *node;
 
-#line 246 "y.tab.c"
+#line 247 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -711,13 +712,13 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    89,    89,    93,    94,    98,    99,   103,   105,   110,
-     111,   115,   120,   121,   125,   126,   130,   132,   137,   142,
-     143,   147,   148,   152,   153,   154,   155,   156,   160,   161,
-     165,   167,   172,   177,   179,   184,   185,   189,   191,   196,
-     198,   203,   204,   205,   206,   207,   208,   212,   214,   219,
-     220,   224,   226,   231,   232,   236,   237,   238,   239,   243,
-     248,   249,   253,   254
+       0,    90,    90,    94,    95,    99,   100,   104,   106,   111,
+     112,   116,   121,   122,   126,   127,   131,   133,   138,   143,
+     144,   148,   149,   153,   154,   155,   156,   157,   161,   162,
+     166,   168,   173,   178,   180,   185,   186,   190,   192,   197,
+     199,   204,   205,   206,   207,   208,   209,   213,   215,   220,
+     221,   225,   227,   232,   233,   237,   238,   239,   240,   244,
+     249,   250,   254,   255
 };
 #endif
 
@@ -1347,379 +1348,379 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: declaration_list  */
-#line 89 "cminus.y"
+#line 90 "cminus.y"
                        { root = (yyvsp[0].node); }
-#line 1353 "y.tab.c"
+#line 1354 "y.tab.c"
     break;
 
   case 3: /* declaration_list: declaration_list declaration  */
-#line 93 "cminus.y"
+#line 94 "cminus.y"
                                    { (yyval.node) = addSibling((yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1359 "y.tab.c"
+#line 1360 "y.tab.c"
     break;
 
   case 4: /* declaration_list: declaration  */
-#line 94 "cminus.y"
+#line 95 "cminus.y"
                                    { (yyval.node) = (yyvsp[0].node); }
-#line 1365 "y.tab.c"
+#line 1366 "y.tab.c"
     break;
 
   case 5: /* declaration: var_declaration  */
-#line 98 "cminus.y"
+#line 99 "cminus.y"
                       { (yyval.node) = (yyvsp[0].node); }
-#line 1371 "y.tab.c"
+#line 1372 "y.tab.c"
     break;
 
   case 6: /* declaration: fun_declaration  */
-#line 99 "cminus.y"
+#line 100 "cminus.y"
                       { (yyval.node) = (yyvsp[0].node); }
-#line 1377 "y.tab.c"
+#line 1378 "y.tab.c"
     break;
 
   case 7: /* var_declaration: type_specifier ID SEMI  */
-#line 104 "cminus.y"
+#line 105 "cminus.y"
         { (yyval.node) = newNode("VarDecl", (yyvsp[-1].str), (yyvsp[-2].node), NULL, NULL); }
-#line 1383 "y.tab.c"
+#line 1384 "y.tab.c"
     break;
 
   case 8: /* var_declaration: type_specifier ID LBRACK NUM RBRACK SEMI  */
-#line 106 "cminus.y"
+#line 107 "cminus.y"
         { (yyval.node) = newNode("ArrayDecl", (yyvsp[-4].str), (yyvsp[-5].node), newNode("Size", (yyvsp[-2].str), NULL, NULL, NULL), NULL); }
-#line 1389 "y.tab.c"
+#line 1390 "y.tab.c"
     break;
 
   case 9: /* type_specifier: INT  */
-#line 110 "cminus.y"
+#line 111 "cminus.y"
            { (yyval.node) = newNode("Type", "int", NULL, NULL, NULL); }
-#line 1395 "y.tab.c"
+#line 1396 "y.tab.c"
     break;
 
   case 10: /* type_specifier: VOID  */
-#line 111 "cminus.y"
+#line 112 "cminus.y"
            { (yyval.node) = newNode("Type", "void", NULL, NULL, NULL); }
-#line 1401 "y.tab.c"
+#line 1402 "y.tab.c"
     break;
 
   case 11: /* fun_declaration: type_specifier ID LPAREN params RPAREN compound_stmt  */
-#line 116 "cminus.y"
+#line 117 "cminus.y"
         { (yyval.node) = newNode("FunDecl", (yyvsp[-4].str), (yyvsp[-5].node), (yyvsp[-2].node), (yyvsp[0].node)); }
-#line 1407 "y.tab.c"
+#line 1408 "y.tab.c"
     break;
 
   case 12: /* params: param_list  */
-#line 120 "cminus.y"
+#line 121 "cminus.y"
                  { (yyval.node) = (yyvsp[0].node); }
-#line 1413 "y.tab.c"
+#line 1414 "y.tab.c"
     break;
 
   case 13: /* params: VOID  */
-#line 121 "cminus.y"
+#line 122 "cminus.y"
                  { (yyval.node) = newNode("Params", "void", NULL, NULL, NULL); }
-#line 1419 "y.tab.c"
+#line 1420 "y.tab.c"
     break;
 
   case 14: /* param_list: param_list COMMA param  */
-#line 125 "cminus.y"
+#line 126 "cminus.y"
                              { (yyval.node) = addSibling((yyvsp[-2].node), (yyvsp[0].node)); }
-#line 1425 "y.tab.c"
+#line 1426 "y.tab.c"
     break;
 
   case 15: /* param_list: param  */
-#line 126 "cminus.y"
+#line 127 "cminus.y"
                              { (yyval.node) = (yyvsp[0].node); }
-#line 1431 "y.tab.c"
+#line 1432 "y.tab.c"
     break;
 
   case 16: /* param: type_specifier ID  */
-#line 131 "cminus.y"
+#line 132 "cminus.y"
         { (yyval.node) = newNode("Param", (yyvsp[0].str), (yyvsp[-1].node), NULL, NULL); }
-#line 1437 "y.tab.c"
+#line 1438 "y.tab.c"
     break;
 
   case 17: /* param: type_specifier ID LBRACK RBRACK  */
-#line 133 "cminus.y"
+#line 134 "cminus.y"
         { (yyval.node) = newNode("ArrayParam", (yyvsp[-2].str), (yyvsp[-3].node), NULL, NULL); }
-#line 1443 "y.tab.c"
+#line 1444 "y.tab.c"
     break;
 
   case 18: /* compound_stmt: LBRACE local_declarations statement_list RBRACE  */
-#line 138 "cminus.y"
+#line 139 "cminus.y"
         { (yyval.node) = newNode("CompoundStmt", NULL, (yyvsp[-2].node), (yyvsp[-1].node), NULL); }
-#line 1449 "y.tab.c"
+#line 1450 "y.tab.c"
     break;
 
   case 19: /* local_declarations: local_declarations var_declaration  */
-#line 142 "cminus.y"
+#line 143 "cminus.y"
                                          { (yyval.node) = addSibling((yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1455 "y.tab.c"
+#line 1456 "y.tab.c"
     break;
 
   case 20: /* local_declarations: %empty  */
-#line 143 "cminus.y"
+#line 144 "cminus.y"
                                          { (yyval.node) = NULL; }
-#line 1461 "y.tab.c"
+#line 1462 "y.tab.c"
     break;
 
   case 21: /* statement_list: statement_list statement  */
-#line 147 "cminus.y"
+#line 148 "cminus.y"
                                { (yyval.node) = addSibling((yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1467 "y.tab.c"
+#line 1468 "y.tab.c"
     break;
 
   case 22: /* statement_list: %empty  */
-#line 148 "cminus.y"
+#line 149 "cminus.y"
                                { (yyval.node) = NULL; }
-#line 1473 "y.tab.c"
+#line 1474 "y.tab.c"
     break;
 
   case 23: /* statement: expression_stmt  */
-#line 152 "cminus.y"
+#line 153 "cminus.y"
                       { (yyval.node) = (yyvsp[0].node); }
-#line 1479 "y.tab.c"
+#line 1480 "y.tab.c"
     break;
 
   case 24: /* statement: compound_stmt  */
-#line 153 "cminus.y"
+#line 154 "cminus.y"
                       { (yyval.node) = (yyvsp[0].node); }
-#line 1485 "y.tab.c"
+#line 1486 "y.tab.c"
     break;
 
   case 25: /* statement: selection_stmt  */
-#line 154 "cminus.y"
+#line 155 "cminus.y"
                       { (yyval.node) = (yyvsp[0].node); }
-#line 1491 "y.tab.c"
+#line 1492 "y.tab.c"
     break;
 
   case 26: /* statement: iteration_stmt  */
-#line 155 "cminus.y"
+#line 156 "cminus.y"
                       { (yyval.node) = (yyvsp[0].node); }
-#line 1497 "y.tab.c"
+#line 1498 "y.tab.c"
     break;
 
   case 27: /* statement: return_stmt  */
-#line 156 "cminus.y"
+#line 157 "cminus.y"
                       { (yyval.node) = (yyvsp[0].node); }
-#line 1503 "y.tab.c"
+#line 1504 "y.tab.c"
     break;
 
   case 28: /* expression_stmt: expression SEMI  */
-#line 160 "cminus.y"
+#line 161 "cminus.y"
                       { (yyval.node) = (yyvsp[-1].node); }
-#line 1509 "y.tab.c"
+#line 1510 "y.tab.c"
     break;
 
   case 29: /* expression_stmt: SEMI  */
-#line 161 "cminus.y"
+#line 162 "cminus.y"
                       { (yyval.node) = newNode("EmptyStmt", NULL, NULL, NULL, NULL); }
-#line 1515 "y.tab.c"
+#line 1516 "y.tab.c"
     break;
 
   case 30: /* selection_stmt: IF LPAREN expression RPAREN statement  */
-#line 166 "cminus.y"
+#line 167 "cminus.y"
         { (yyval.node) = newNode("If", NULL, (yyvsp[-2].node), (yyvsp[0].node), NULL); }
-#line 1521 "y.tab.c"
+#line 1522 "y.tab.c"
     break;
 
   case 31: /* selection_stmt: IF LPAREN expression RPAREN statement ELSE statement  */
-#line 168 "cminus.y"
+#line 169 "cminus.y"
         { (yyval.node) = newNode("IfElse", NULL, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node)); }
-#line 1527 "y.tab.c"
+#line 1528 "y.tab.c"
     break;
 
   case 32: /* iteration_stmt: WHILE LPAREN expression RPAREN statement  */
-#line 173 "cminus.y"
+#line 174 "cminus.y"
         { (yyval.node) = newNode("While", NULL, (yyvsp[-2].node), (yyvsp[0].node), NULL); }
-#line 1533 "y.tab.c"
+#line 1534 "y.tab.c"
     break;
 
   case 33: /* return_stmt: RETURN SEMI  */
-#line 178 "cminus.y"
+#line 179 "cminus.y"
         { (yyval.node) = newNode("Return", NULL, NULL, NULL, NULL); }
-#line 1539 "y.tab.c"
+#line 1540 "y.tab.c"
     break;
 
   case 34: /* return_stmt: RETURN expression SEMI  */
-#line 180 "cminus.y"
+#line 181 "cminus.y"
         { (yyval.node) = newNode("Return", NULL, (yyvsp[-1].node), NULL, NULL); }
-#line 1545 "y.tab.c"
+#line 1546 "y.tab.c"
     break;
 
   case 35: /* expression: var ASSIGN expression  */
-#line 184 "cminus.y"
+#line 185 "cminus.y"
                             { (yyval.node) = newNode("Assign", "=", (yyvsp[-2].node), (yyvsp[0].node), NULL); }
-#line 1551 "y.tab.c"
+#line 1552 "y.tab.c"
     break;
 
   case 36: /* expression: simple_expression  */
-#line 185 "cminus.y"
+#line 186 "cminus.y"
                             { (yyval.node) = (yyvsp[0].node); }
-#line 1557 "y.tab.c"
+#line 1558 "y.tab.c"
     break;
 
   case 37: /* var: ID  */
-#line 190 "cminus.y"
+#line 191 "cminus.y"
         { (yyval.node) = newNode("Var", (yyvsp[0].str), NULL, NULL, NULL); }
-#line 1563 "y.tab.c"
+#line 1564 "y.tab.c"
     break;
 
   case 38: /* var: ID LBRACK expression RBRACK  */
-#line 192 "cminus.y"
+#line 193 "cminus.y"
         { (yyval.node) = newNode("ArrayVar", (yyvsp[-3].str), (yyvsp[-1].node), NULL, NULL); }
-#line 1569 "y.tab.c"
+#line 1570 "y.tab.c"
     break;
 
   case 39: /* simple_expression: additive_expression relop additive_expression  */
-#line 197 "cminus.y"
+#line 198 "cminus.y"
         { (yyvsp[-1].node)->child1 = (yyvsp[-2].node); (yyvsp[-1].node)->child2 = (yyvsp[0].node); (yyval.node) = (yyvsp[-1].node); }
-#line 1575 "y.tab.c"
+#line 1576 "y.tab.c"
     break;
 
   case 40: /* simple_expression: additive_expression  */
-#line 199 "cminus.y"
+#line 200 "cminus.y"
         { (yyval.node) = (yyvsp[0].node); }
-#line 1581 "y.tab.c"
+#line 1582 "y.tab.c"
     break;
 
   case 41: /* relop: LE  */
-#line 203 "cminus.y"
+#line 204 "cminus.y"
          { (yyval.node) = newNode("RelOp", "<=", NULL, NULL, NULL); }
-#line 1587 "y.tab.c"
+#line 1588 "y.tab.c"
     break;
 
   case 42: /* relop: LT  */
-#line 204 "cminus.y"
+#line 205 "cminus.y"
          { (yyval.node) = newNode("RelOp", "<", NULL, NULL, NULL); }
-#line 1593 "y.tab.c"
+#line 1594 "y.tab.c"
     break;
 
   case 43: /* relop: GT  */
-#line 205 "cminus.y"
+#line 206 "cminus.y"
          { (yyval.node) = newNode("RelOp", ">", NULL, NULL, NULL); }
-#line 1599 "y.tab.c"
+#line 1600 "y.tab.c"
     break;
 
   case 44: /* relop: GE  */
-#line 206 "cminus.y"
+#line 207 "cminus.y"
          { (yyval.node) = newNode("RelOp", ">=", NULL, NULL, NULL); }
-#line 1605 "y.tab.c"
+#line 1606 "y.tab.c"
     break;
 
   case 45: /* relop: EQ  */
-#line 207 "cminus.y"
+#line 208 "cminus.y"
          { (yyval.node) = newNode("RelOp", "==", NULL, NULL, NULL); }
-#line 1611 "y.tab.c"
+#line 1612 "y.tab.c"
     break;
 
   case 46: /* relop: NE  */
-#line 208 "cminus.y"
+#line 209 "cminus.y"
          { (yyval.node) = newNode("RelOp", "!=", NULL, NULL, NULL); }
-#line 1617 "y.tab.c"
+#line 1618 "y.tab.c"
     break;
 
   case 47: /* additive_expression: additive_expression addop term  */
-#line 213 "cminus.y"
+#line 214 "cminus.y"
         { (yyvsp[-1].node)->child1 = (yyvsp[-2].node); (yyvsp[-1].node)->child2 = (yyvsp[0].node); (yyval.node) = (yyvsp[-1].node); }
-#line 1623 "y.tab.c"
+#line 1624 "y.tab.c"
     break;
 
   case 48: /* additive_expression: term  */
-#line 215 "cminus.y"
+#line 216 "cminus.y"
         { (yyval.node) = (yyvsp[0].node); }
-#line 1629 "y.tab.c"
+#line 1630 "y.tab.c"
     break;
 
   case 49: /* addop: PLUS  */
-#line 219 "cminus.y"
+#line 220 "cminus.y"
             { (yyval.node) = newNode("AddOp", "+", NULL, NULL, NULL); }
-#line 1635 "y.tab.c"
+#line 1636 "y.tab.c"
     break;
 
   case 50: /* addop: MINUS  */
-#line 220 "cminus.y"
+#line 221 "cminus.y"
             { (yyval.node) = newNode("AddOp", "-", NULL, NULL, NULL); }
-#line 1641 "y.tab.c"
+#line 1642 "y.tab.c"
     break;
 
   case 51: /* term: term mulop factor  */
-#line 225 "cminus.y"
+#line 226 "cminus.y"
         { (yyvsp[-1].node)->child1 = (yyvsp[-2].node); (yyvsp[-1].node)->child2 = (yyvsp[0].node); (yyval.node) = (yyvsp[-1].node); }
-#line 1647 "y.tab.c"
+#line 1648 "y.tab.c"
     break;
 
   case 52: /* term: factor  */
-#line 227 "cminus.y"
+#line 228 "cminus.y"
         { (yyval.node) = (yyvsp[0].node); }
-#line 1653 "y.tab.c"
+#line 1654 "y.tab.c"
     break;
 
   case 53: /* mulop: TIMES  */
-#line 231 "cminus.y"
+#line 232 "cminus.y"
             { (yyval.node) = newNode("MulOp", "*", NULL, NULL, NULL); }
-#line 1659 "y.tab.c"
+#line 1660 "y.tab.c"
     break;
 
   case 54: /* mulop: OVER  */
-#line 232 "cminus.y"
+#line 233 "cminus.y"
             { (yyval.node) = newNode("MulOp", "/", NULL, NULL, NULL); }
-#line 1665 "y.tab.c"
+#line 1666 "y.tab.c"
     break;
 
   case 55: /* factor: LPAREN expression RPAREN  */
-#line 236 "cminus.y"
+#line 237 "cminus.y"
                                { (yyval.node) = (yyvsp[-1].node); }
-#line 1671 "y.tab.c"
+#line 1672 "y.tab.c"
     break;
 
   case 56: /* factor: var  */
-#line 237 "cminus.y"
+#line 238 "cminus.y"
                                { (yyval.node) = (yyvsp[0].node); }
-#line 1677 "y.tab.c"
+#line 1678 "y.tab.c"
     break;
 
   case 57: /* factor: call  */
-#line 238 "cminus.y"
+#line 239 "cminus.y"
                                { (yyval.node) = (yyvsp[0].node); }
-#line 1683 "y.tab.c"
+#line 1684 "y.tab.c"
     break;
 
   case 58: /* factor: NUM  */
-#line 239 "cminus.y"
+#line 240 "cminus.y"
                                { (yyval.node) = newNode("Num", (yyvsp[0].str), NULL, NULL, NULL); }
-#line 1689 "y.tab.c"
+#line 1690 "y.tab.c"
     break;
 
   case 59: /* call: ID LPAREN args RPAREN  */
-#line 244 "cminus.y"
+#line 245 "cminus.y"
         { (yyval.node) = newNode("Call", (yyvsp[-3].str), (yyvsp[-1].node), NULL, NULL); }
-#line 1695 "y.tab.c"
+#line 1696 "y.tab.c"
     break;
 
   case 60: /* args: arg_list  */
-#line 248 "cminus.y"
+#line 249 "cminus.y"
                   { (yyval.node) = (yyvsp[0].node); }
-#line 1701 "y.tab.c"
+#line 1702 "y.tab.c"
     break;
 
   case 61: /* args: %empty  */
-#line 249 "cminus.y"
+#line 250 "cminus.y"
                   { (yyval.node) = NULL; }
-#line 1707 "y.tab.c"
+#line 1708 "y.tab.c"
     break;
 
   case 62: /* arg_list: arg_list COMMA expression  */
-#line 253 "cminus.y"
+#line 254 "cminus.y"
                                 { (yyval.node) = addSibling((yyvsp[-2].node), (yyvsp[0].node)); }
-#line 1713 "y.tab.c"
+#line 1714 "y.tab.c"
     break;
 
   case 63: /* arg_list: expression  */
-#line 254 "cminus.y"
+#line 255 "cminus.y"
                                 { (yyval.node) = (yyvsp[0].node); }
-#line 1719 "y.tab.c"
+#line 1720 "y.tab.c"
     break;
 
 
-#line 1723 "y.tab.c"
+#line 1724 "y.tab.c"
 
       default: break;
     }
@@ -1912,7 +1913,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 257 "cminus.y"
+#line 258 "cminus.y"
 
 
 void yyerror(const char *s) {
@@ -1920,17 +1921,24 @@ void yyerror(const char *s) {
 }
 
 int main(int argc, char **argv) {
+    int opened_file = 0;
     if (argc > 1) {
         yyin = fopen(argv[1], "r");
         if (!yyin) {
             perror("Erro ao abrir arquivo");
             return 1;
         }
+        opened_file = 1;
     }
 
-    if (yyparse() == 0) {
+    int parse_result = yyparse();
+
+    if (parse_result == 0 && lexical_error == 0) {
         printf("Análise sintática concluída com sucesso!\n\n--- AST ---\n");
         printAST(root, 0);
+        if (opened_file) fclose(yyin);
+        return 0;
     }
-    return 0;
+    if (opened_file) fclose(yyin);
+    return 1;
 }
