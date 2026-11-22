@@ -1,30 +1,134 @@
-# Projeto de Compilador: C--
+# Compilador C--
 
-## Sobre o Projeto
+Implementação experimental de analisadores para um subconjunto da linguagem
+**C--**, desenvolvida em C. O repositório reúne implementações manuais e
+implementações geradas com Flex e Yacc/Bison, com foco nas etapas léxica e
+sintática.
 
-Este repositório contém a implementação de um compilador para uma versão simplificada da linguagem **C--**. O objetivo final do projeto é realizar desde a análise léxica até a geração de código em MIPS, que poderá ser executado em um simulador (como o MARS ou SPIM).
+## Estado atual
 
-**Integrantes:**
+- [x] Analisador léxico manual para o subconjunto da primeira etapa
+- [x] Analisador sintático manual LL(1) para declarações do subconjunto
+- [x] Analisador léxico completo com Flex
+- [x] Analisador sintático com Yacc/Bison e Flex, gerando uma AST
+- [x] Analisador sintático LL(1) de expressões matemáticas
+- [ ] Análise semântica
+- [ ] Geração e execução de código MIPS
+
+A gramática de referência está em [`cminus-bnf.pdf`](cminus-bnf.pdf).
+
+## Estrutura do repositório
+
+```text
+compiler/
+├── manual-scanner/
+│   ├── scanner_subconjunto.c  # Scanner manual do subconjunto
+│   └── sub_*.cm               # Entradas de teste
+├── manual-parser/
+│   ├── parser_subconjunto.c   # Parser LL(1) manual
+│   └── sub_*.cm               # Entradas de teste
+├── flex-scanner/
+│   ├── scanner.l              # Especificação Flex do scanner completo
+│   └── teste_*.cm             # Entradas de teste
+└── yacc-parser/
+    ├── cminus.l               # Especificação léxica
+    ├── cminus.y               # Gramática Yacc/Bison e construção da AST
+    └── sub_*.cm               # Entradas de teste
+mathematical-expressions-synthatic-analyzer/
+└── analyzer.c                 # Parser LL(1) interativo de expressões
+```
+
+Os executáveis e arquivos gerados (`scanner`, `cminus_parser`, `lex.yy.c`,
+`y.tab.c` e `y.tab.h`) também podem estar presentes no repositório para
+facilitar a execução dos exemplos.
+
+## Pré-requisitos
+
+Para recompilar os analisadores, use um ambiente C com GCC. O scanner Flex e o
+parser Yacc/Bison também exigem:
+
+- [Flex](https://github.com/westes/flex)
+- [Bison](https://www.gnu.org/software/bison/)
+
+Os comandos abaixo funcionam em Linux ou WSL. Em outros ambientes, ajuste a
+forma de invocar os executáveis.
+
+## Como compilar e executar
+
+### Scanner manual
+
+```bash
+cd compiler/manual-scanner
+gcc scanner_subconjunto.c -o scanner
+./scanner sub_valido.cm
+./scanner sub_invalido.cm
+```
+
+O programa imprime os tokens e erros léxicos no terminal e salva um relatório
+`saida_<arquivo-de-entrada>.txt`.
+
+### Parser manual LL(1)
+
+```bash
+cd compiler/manual-parser
+gcc parser_subconjunto.c -o parser_subconjunto
+./parser_subconjunto sub_valido.cm
+./parser_subconjunto sub_invalido.cm
+```
+
+Durante o reconhecimento, o parser exibe a pilha, as regras aplicadas e a
+árvore sintática resultante.
+
+### Scanner com Flex
+
+```bash
+cd compiler/flex-scanner
+flex scanner.l
+gcc lex.yy.c -o scanner
+./scanner teste_valido.cm
+./scanner teste_invalido.cm
+```
+
+O scanner reconhece palavras-chave, identificadores, números, símbolos e
+comentários `/* ... */`, acumulando os erros léxicos encontrados.
+
+### Parser com Yacc/Bison e Flex
+
+Para regenerar os arquivos do parser:
+
+```bash
+cd compiler/yacc-parser
+bison -y -d cminus.y
+flex cminus.l
+gcc y.tab.c lex.yy.c -o cminus_parser
+./cminus_parser sub_valido.cm
+./cminus_parser sub_invalido.cm
+```
+
+Dependendo da versão do Bison, os arquivos podem ser gerados com os nomes
+`cminus.tab.c` e `cminus.tab.h`. Nesse caso, ajuste os nomes no comando de
+compilação ou use os arquivos gerados já presentes no diretório. Ao aceitar a
+entrada, o parser imprime a AST.
+
+### Analisador de expressões matemáticas
+
+```bash
+cd mathematical-expressions-synthatic-analyzer
+gcc analyzer.c -o analyzer
+./analyzer
+```
+
+Digite uma expressão usando números, `+`, `-`, `*`, `/`, `^` e parênteses, por
+exemplo:
+
+```text
+3.5 + 4 * ( 2 - 1 )
+```
+
+O analisador mostra as regras LL(1) aplicadas e a árvore sintática.
+
+## Integrantes
 
 - Luiz Paulo Sousa de Andrade
 - Melinda Bianco Blak
 - Rafael Vinícius Andrade Amparo
-
----
-
-## Etapas do Compilador
-
-O projeto está dividido nas seguintes fases:
-
-- [x] **Etapa 1:** Analisador Léxico (Scanner)
-- [ ] **Etapa 2:** Analisador Sintático e Semântico
-- [ ] **Etapa 3:** Tradução para código assembly MIPS
-- [ ] **Etapa 4:** Execução em simulador MIPS
-
----
-
-## Etapa 1: Analisador Léxico (Fase Atual)
-
-A primeira etapa foca no reconhecimento de tokens da linguagem, dividida em duas abordagens: uma manual (para fins didáticos) e uma automatizada utilizando o Flex.
-
-A especificação sintática (BNF) completa da linguagem pode ser encontrada no arquivo `cminus-bnf.pdf`.
