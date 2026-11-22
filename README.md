@@ -35,7 +35,7 @@ compiler/
 └── yacc-parser/
     ├── cminus.y                 # Gramática Yacc/Bison e construção da AST
     └── sub_*.cm               # Entradas de teste
-parser_operadores/
+parser_operacoes/
 └── analyzer.c                 # Parser LL(1) interativo de expressões
 ```
 
@@ -147,7 +147,7 @@ entrada, o parser imprime a AST.
 ### Analisador de expressões matemáticas
 
 ```bash
-cd parser_operadores
+cd parser_operacoes
 gcc analyzer.c -o analyzer
 ./analyzer
 ```
